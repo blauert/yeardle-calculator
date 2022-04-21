@@ -114,7 +114,7 @@ def input_year(game):
         print()
 
     while True:
-        guess = input("Enter a year: ")
+        guess = input("Enter your guess: ")
         if guess.replace('-', '', 1).isdecimal():
             guess_yr = human_to_yr(int(guess))
         else:
