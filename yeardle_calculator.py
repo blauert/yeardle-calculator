@@ -136,6 +136,9 @@ def input_year(game):
 
     while True:
         guess = input("Enter your guess: ")
+        if guess == '0':
+            print("Year zero does not exist!\n")
+            continue
         if guess.replace('-', '', 1).isdecimal():
             guess_yr = human_to_yr(int(guess))
         else:
