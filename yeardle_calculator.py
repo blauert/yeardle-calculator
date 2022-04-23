@@ -122,6 +122,13 @@ def print_ranges(game):
         print()
 
 
+def print_hint_menu():
+    print("\nWhat was Yeardle's response to your guess?\n")
+    for i, hint in hints.items():
+        print(f"\t{i}: {hint['color'].title()}")
+    print()
+
+
 def input_year(game):
     while True:
         guess = input("Enter your guess: ")
@@ -140,11 +147,6 @@ def input_year(game):
 
 
 def input_hint():
-    print("\nWhat was Yeardle's response to your guess?\n")
-    for i, hint in hints.items():
-        print(f"\t{i}: {hint['color'].title()}")
-    print()
-
     while True:
         hint = input("Response? ")
         if hint.isdecimal():
@@ -155,7 +157,7 @@ def input_hint():
         print("Not a valid answer.\n")
 
 
-def game_done(game, hint):
+def check_if_done(game, hint):
     if hint == 0:
         print(f"Year: {astr_to_greg(game.lastguess)}\nGuesses: {game.guess_count}\n")
         return True
@@ -179,9 +181,10 @@ def main():
         guess_yr = input_year(game)
         game.enter_guess(guess_yr)
         # Ask user to input Yeardle's hint
+        print_hint_menu()
         hint = input_hint()
         # Check if game is done
-        if game_done(game, hint):
+        if check_if_done(game, hint):
             input("Enter to quit.")
             break
         # Calculate new possible ranges
