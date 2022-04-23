@@ -61,10 +61,6 @@ class YeardleGame:
         self.guesses = []
         self.lastguess = float('-inf')
 
-    def __str__(self):
-        r = ', '.join([str(r) for r in self.guess_ranges])
-        return f"Ranges: {r if r else None} | Guesses: {self.guess_count} | Last: {astr_to_greg(self.lastguess)}"
-
     def guess(self, guess_yr):
         self.guesses.append(guess_yr)
         self.lastguess = guess_yr
@@ -92,22 +88,22 @@ class YeardleGame:
 
         self.guess_ranges = new_ranges
 
-    def print(self):
-        game = [''] * MAX_GUESSES
-        for i, yr in enumerate(self.guesses):
-            game[i] = str(astr_to_greg(yr))
-        game[len(self.guesses)] = '_____'
-        game = [' '.join(list(string)).rjust(9) for string in game]
 
-        print(f'''
+def print_game(game):
+    strs = [''] * MAX_GUESSES
+    for i, yr in enumerate(game.guesses):
+        strs[i] = str(astr_to_greg(yr))
+    strs[len(game.guesses)] = '_____'
+    strs = [' '.join(list(string)).rjust(9) for string in strs]
+    print(f'''
 \t╔═════════════╦═════════════╗
-\t║  {game[0]}  ║  {game[4]}  ║
+\t║  {strs[0]}  ║  {strs[4]}  ║
 \t╠═════════════╬═════════════╣
-\t║  {game[1]}  ║  {game[5]}  ║
+\t║  {strs[1]}  ║  {strs[5]}  ║
 \t╠═════════════╬═════════════╣
-\t║  {game[2]}  ║  {game[6]}  ║
+\t║  {strs[2]}  ║  {strs[6]}  ║
 \t╠═════════════╬═════════════╣
-\t║  {game[3]}  ║  {game[7]}  ║
+\t║  {strs[3]}  ║  {strs[7]}  ║
 \t╚═════════════╩═════════════╝
 ''')
 
@@ -116,7 +112,7 @@ def input_year(game):
     print("-" * 50)
     print(f"Guess # {game.guess_count+1}")
 
-    game.print()
+    print_game(game)
 
     if game.guess_count == 0:
         print(f"Allowed range of years: {game.guess_ranges[0]}\n")
@@ -163,13 +159,14 @@ def input_hint():
 
 
 def main():
+    print("Welcome!\n")
     game = YeardleGame()
 
-    print("Welcome!\n")
-
     while True:
+        # Ask user to input a year
         guess_yr = input_year(game)
         game.guess(guess_yr)
+        # Ask user to input Yeardle's hint, then calculate new possible ranges
         hint = input_hint()
         if hint == 0:
             print(f"Year: {astr_to_greg(game.lastguess)}\nGuesses: {game.guess_count}\n")
