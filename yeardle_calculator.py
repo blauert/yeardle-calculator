@@ -1,6 +1,6 @@
 from datetime import datetime
 
-MIN_HUMAN_YEAR = -9999
+MIN_YEAR = -9999
 MAX_GUESSES = 8
 
 hints = {5: {'color': 'black', 'min': 201, 'max': float('inf'), 'text': 'over 200 years off', 'emoji': '⬛'},
@@ -12,22 +12,18 @@ hints = {5: {'color': 'black', 'min': 201, 'max': float('inf'), 'text': 'over 20
          }
 
 
-def human_to_yr(human_year):
-    """Convert year to index (starting at 0) to account for missing year zero between 1 BC and 1 AD."""
-    if human_year < 0:
-        yr = abs(MIN_HUMAN_YEAR) - abs(human_year)
-    else:
-        yr = abs(MIN_HUMAN_YEAR) + human_year - 1
-    return yr
+def greg_to_astr(year):
+    """Convert Gregorian year to astronomical year to account for missing year zero in calculations."""
+    if year < 0:
+        year += 1
+    return year
 
 
-def yr_to_human(yr):
-    """Convert index to human-readable year."""
-    if yr < abs(MIN_HUMAN_YEAR):
-        human_year = yr - abs(MIN_HUMAN_YEAR)
-    else:
-        human_year = yr - abs(MIN_HUMAN_YEAR) + 1
-    return human_year
+def astr_to_greg(year):
+    """Convert astronomical year back to Gregorian year."""
+    if year < 1:
+        year -= 1
+    return year
 
 
 class GuessRange:
@@ -44,13 +40,13 @@ class GuessRange:
             return GuessRange(new_min_yr, new_max_yr)
 
     def __bool__(self):
-        if self.min_yr < 0:
+        if self.min_yr == float('-inf'):
             return False
         else:
             return True
 
     def __str__(self):
-        return f"{yr_to_human(self.min_yr)} ... {yr_to_human(self.max_yr)}"
+        return f"{astr_to_greg(self.min_yr)} ... {astr_to_greg(self.max_yr)}"
 
     def bisect(self):
         return (self.min_yr + self.max_yr) // 2
@@ -58,8 +54,8 @@ class GuessRange:
 
 class YeardleGame:
     def __init__(self):
-        self.min_yr = human_to_yr(MIN_HUMAN_YEAR)
-        self.max_yr = human_to_yr(datetime.now().year)
+        self.min_yr = greg_to_astr(MIN_YEAR)
+        self.max_yr = greg_to_astr(datetime.now().year)
         self.guess_ranges = [GuessRange(self.min_yr, self.max_yr)]
         self.guess_count = 0
         self.guesses = []
@@ -67,7 +63,7 @@ class YeardleGame:
 
     def __str__(self):
         r = ', '.join([str(r) for r in self.guess_ranges])
-        return f"Ranges: {r if r else None} | Guesses: {self.guess_count} | Last: {yr_to_human(self.lastguess)}"
+        return f"Ranges: {r if r else None} | Guesses: {self.guess_count} | Last: {astr_to_greg(self.lastguess)}"
 
     def guess(self, guess_yr):
         self.guesses.append(guess_yr)
@@ -99,7 +95,7 @@ class YeardleGame:
     def print(self):
         game = [''] * MAX_GUESSES
         for i, yr in enumerate(self.guesses):
-            game[i] = str(yr_to_human(yr))
+            game[i] = str(astr_to_greg(yr))
         game[len(self.guesses)] = '_____'
         game = [' '.join(list(string)).rjust(9) for string in game]
 
@@ -131,7 +127,7 @@ def input_year(game):
             if len(str(r)) > max_r_str_len:
                 max_r_str_len = len(str(r))
         for r in game.guess_ranges:
-            print(f"\t{str(r).rjust(max_r_str_len)} -> Suggested guess: {yr_to_human(r.bisect())}")
+            print(f"\t{str(r).rjust(max_r_str_len)} -> Suggested guess: {astr_to_greg(r.bisect())}")
         print()
 
     while True:
@@ -140,7 +136,7 @@ def input_year(game):
             print("Year zero does not exist!\n")
             continue
         if guess.replace('-', '', 1).isdecimal():
-            guess_yr = human_to_yr(int(guess))
+            guess_yr = greg_to_astr(int(guess))
         else:
             print("Not a valid number!\n")
             continue
@@ -176,7 +172,7 @@ def main():
         game.guess(guess_yr)
         hint = input_hint()
         if hint == 0:
-            print(f"Year: {yr_to_human(game.lastguess)}\nGuesses: {game.guess_count}\n")
+            print(f"Year: {astr_to_greg(game.lastguess)}\nGuesses: {game.guess_count}\n")
             input("Enter to quit.")
             break
         if game.guess_count == MAX_GUESSES:
