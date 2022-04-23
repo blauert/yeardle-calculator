@@ -15,3 +15,5 @@ Helps you win at https://histordle.com/yeardle/
 `1`: 🟨 = 1-2 years off
 
 `0`: 🟩 = Nailed it! `-> Exit`
+
+![Screenshot of yeardle_calculator in action](screenshot.png)
