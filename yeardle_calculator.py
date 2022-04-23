@@ -61,7 +61,7 @@ class YeardleGame:
         self.guesses = []
         self.lastguess = float('-inf')
 
-    def guess(self, guess_yr):
+    def enter_guess(self, guess_yr):
         self.guesses.append(guess_yr)
         self.lastguess = guess_yr
         self.guess_count += 1
@@ -108,12 +108,7 @@ def print_game(game):
 ''')
 
 
-def input_year(game):
-    print("-" * 50)
-    print(f"Guess # {game.guess_count+1}")
-
-    print_game(game)
-
+def print_ranges(game):
     if game.guess_count == 0:
         print(f"Allowed range of years: {game.guess_ranges[0]}\n")
     else:
@@ -126,6 +121,8 @@ def input_year(game):
             print(f"\t{str(r).rjust(max_r_str_len)} -> Suggested guess: {astr_to_greg(r.bisect())}")
         print()
 
+
+def input_year(game):
     while True:
         guess = input("Enter your guess: ")
         if guess == '0':
@@ -158,24 +155,36 @@ def input_hint():
         print("Not a valid answer.\n")
 
 
+def game_done(game, hint):
+    if hint == 0:
+        print(f"Year: {astr_to_greg(game.lastguess)}\nGuesses: {game.guess_count}\n")
+        return True
+    if game.guess_count == MAX_GUESSES:
+        print("Your guesses are up. Better luck next time!\n")
+        return True
+    return False
+
+
 def main():
     print("Welcome!\n")
     game = YeardleGame()
-
+    
     while True:
+        print("-" * 50)
+        print(f"Guess # {game.guess_count+1}")
+        # Print current state of the game
+        print_game(game)
+        print_ranges(game)
         # Ask user to input a year
         guess_yr = input_year(game)
-        game.guess(guess_yr)
-        # Ask user to input Yeardle's hint, then calculate new possible ranges
+        game.enter_guess(guess_yr)
+        # Ask user to input Yeardle's hint
         hint = input_hint()
-        if hint == 0:
-            print(f"Year: {astr_to_greg(game.lastguess)}\nGuesses: {game.guess_count}\n")
+        # Check if game is done
+        if game_done(game, hint):
             input("Enter to quit.")
             break
-        if game.guess_count == MAX_GUESSES:
-            print("Your guesses are up. Better luck next time!\n")
-            input("Enter to quit.")
-            break
+        # Calculate new possible ranges
         game.calc(hint)
 
 
