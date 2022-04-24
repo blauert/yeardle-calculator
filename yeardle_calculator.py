@@ -61,12 +61,12 @@ class YeardleGame:
         self.guesses = []
         self.lastguess = float('-inf')
 
-    def enter_guess(self, guess_yr):
+    def set_guess(self, guess_yr):
         self.guesses.append(guess_yr)
         self.lastguess = guess_yr
         self.guess_count += 1
 
-    def calc(self, hint):
+    def calc_ranges(self, hint):
         up_and_down = []
 
         down_min = self.lastguess - hints[hint]['min']
@@ -95,7 +95,7 @@ def print_game(game):
         strs[i] = str(astr_to_greg(yr))
     strs[len(game.guesses)] = '_____'
     strs = [' '.join(list(string)).rjust(9) for string in strs]
-    print(f'''
+    print(f'''\
 \t╔═════════════╦═════════════╗
 \t║  {strs[0]}  ║  {strs[4]}  ║
 \t╠═════════════╬═════════════╣
@@ -104,29 +104,28 @@ def print_game(game):
 \t║  {strs[2]}  ║  {strs[6]}  ║
 \t╠═════════════╬═════════════╣
 \t║  {strs[3]}  ║  {strs[7]}  ║
-\t╚═════════════╩═════════════╝
-''')
+\t╚═════════════╩═════════════╝''')
 
 
 def print_ranges(game):
     if game.guess_count == 0:
-        print(f"Allowed range of years: {game.guess_ranges[0]}\n")
+        print(f"Allowed range of years: {game.guess_ranges[0]}")
     else:
         print("Possible guesses:\n")
         max_r_str_len = 0
         for r in game.guess_ranges:
             if len(str(r)) > max_r_str_len:
                 max_r_str_len = len(str(r))
+        if len(game.guess_ranges) == 0:
+            print("\tNone")
         for r in game.guess_ranges:
             print(f"\t{str(r).rjust(max_r_str_len)} -> Suggested guess: {astr_to_greg(r.bisect())}")
-        print()
 
 
 def print_hint_menu():
-    print("\nWhat was Yeardle's response to your guess?\n")
+    print("What was Yeardle's response to your guess?\n")
     for i, hint in hints.items():
         print(f"\t{i}: {hint['color'].title()}")
-    print()
 
 
 def input_year(game):
@@ -140,10 +139,10 @@ def input_year(game):
         else:
             print("Not a valid number!\n")
             continue
-        if guess_yr >= game.min_yr and guess_yr <= game.max_yr:
-            return guess_yr
-        else:
+        if guess_yr < game.min_yr or guess_yr > game.max_yr:
             print("Year out of range!\n")
+            continue
+        return guess_yr
 
 
 def input_hint():
@@ -151,16 +150,19 @@ def input_hint():
         hint = input("Response? ")
         if hint.isdecimal():
             hint = int(hint)
-            if hint in hints.keys():
-                print(f"-> {hints[hint]['text']}\n")
-                return int(hint)
-        print("Not a valid answer.\n")
+        if hints.get(hint) is None:
+            print("Not a valid answer.\n")
+            continue
+        print(f"-> {hints[hint]['text']}")
+        return int(hint)
 
 
 def check_if_done(game, hint):
+    # Found solution
     if hint == 0:
         print(f"Year: {astr_to_greg(game.lastguess)}\nGuesses: {game.guess_count}\n")
         return True
+    # Used all guesses
     if game.guess_count == MAX_GUESSES:
         print("Your guesses are up. Better luck next time!\n")
         return True
@@ -175,20 +177,27 @@ def main():
         print("-" * 50)
         print(f"Guess # {game.guess_count+1}")
         # Print current state of the game
+        print()
         print_game(game)
+        print()
         print_ranges(game)
+        print()
         # Ask user to input a year
         guess_yr = input_year(game)
-        game.enter_guess(guess_yr)
-        # Ask user to input Yeardle's hint
+        game.set_guess(guess_yr)
+        # Print hint menu
+        print()
         print_hint_menu()
+        print()
+        # Ask user to input Yeardle's hint
         hint = input_hint()
+        print()
         # Check if game is done
         if check_if_done(game, hint):
             input("Enter to quit.")
             break
         # Calculate new possible ranges
-        game.calc(hint)
+        game.calc_ranges(hint)
 
 
 if __name__ == "__main__":
