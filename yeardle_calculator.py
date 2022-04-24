@@ -153,7 +153,6 @@ def input_hint():
         if hints.get(hint) is None:
             print("Not a valid answer.\n")
             continue
-        print(f"-> {hints[hint]['text']}")
         return hint
 
 
@@ -191,7 +190,7 @@ def main():
         print()
         # Ask user to input Yeardle's hint
         hint = input_hint()
-        print()
+        print(f"-> {hints[hint]['text']}\n")
         # Check if game is done
         if check_if_done(game, hint):
             input("Enter to quit.")
