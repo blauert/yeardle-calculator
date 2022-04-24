@@ -154,7 +154,7 @@ def input_hint():
             print("Not a valid answer.\n")
             continue
         print(f"-> {hints[hint]['text']}")
-        return int(hint)
+        return hint
 
 
 def check_if_done(game, hint):
