@@ -128,18 +128,18 @@ def print_hint_menu():
         print(f"\t{i}: {hint['color'].title()}")
 
 
-def input_year(game):
+def input_year(min_yr, max_yr):
     while True:
         guess = input("Enter your guess: ")
         if guess == '0':
             print("Year zero does not exist!\n")
             continue
-        if guess.replace('-', '', 1).isdecimal():
+        if guess.isdecimal() or (guess.replace('-', '', 1).isdecimal() and guess[0] == '-'):
             guess_yr = greg_to_astr(int(guess))
         else:
             print("Not a valid number!\n")
             continue
-        if guess_yr < game.min_yr or guess_yr > game.max_yr:
+        if guess_yr < min_yr or guess_yr > max_yr:
             print("Year out of range!\n")
             continue
         return guess_yr
@@ -156,18 +156,6 @@ def input_hint():
         return hint
 
 
-def check_if_done(game, hint):
-    # Found solution
-    if hint == 0:
-        print(f"Year: {astr_to_greg(game.lastguess)}\nGuesses: {game.guess_count}\n")
-        return True
-    # Used all guesses
-    if game.guess_count == MAX_GUESSES:
-        print("Your guesses are up. Better luck next time!\n")
-        return True
-    return False
-
-
 def main():
     print("Welcome!\n")
     game = YeardleGame()
@@ -182,7 +170,7 @@ def main():
         print_ranges(game)
         print()
         # Ask user to input a year
-        guess_yr = input_year(game)
+        guess_yr = input_year(game.min_yr, game.max_yr)
         game.set_guess(guess_yr)
         # Print hint menu
         print()
@@ -192,11 +180,16 @@ def main():
         hint = input_hint()
         print(f"-> {hints[hint]['text']}\n")
         # Check if game is done
-        if check_if_done(game, hint):
-            input("Enter to quit.")
+        if hint == 0:
+            print(f"Year: {astr_to_greg(game.lastguess)}\nGuesses: {game.guess_count}\n")
+            break
+        if game.guess_count == MAX_GUESSES:
+            print("Your guesses are up. Better luck next time!\n")
             break
         # Calculate new possible ranges
         game.calc_ranges(hint)
+
+    input("Enter to quit.")
 
 
 if __name__ == "__main__":
