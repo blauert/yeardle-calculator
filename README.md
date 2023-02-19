@@ -1,4 +1,4 @@
-# yeardle_calculator
+# Yeardle Calculator
 
 Helps you win at https://histordle.com/yeardle/
 
